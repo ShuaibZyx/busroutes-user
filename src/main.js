@@ -1,8 +1,8 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import './plugins/element.js'
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
+import store from "./store";
+import "./plugins/element.js";
 import axios from "axios";
 import moment from "moment";
 import Nprogress from "nprogress";
@@ -11,16 +11,15 @@ import { v4 as uuid } from "uuid";
 import ElementUI from "element-ui";
 import "./plugins/element.js";
 import "./assets/css/global.less";
-import "./assets/js/lineconnect.js";
 import citys from "./assets/js/citys";
 import lodash from "lodash";
 
 Vue.use(VueCookies);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 //绑定axios到原型对象实例属性http上
-Vue.prototype.$http = axios;
+Vue.prototype.$axios = axios;
 //设置axios的默认地址和最长请求时间
 axios.defaults.baseURL = "/api";
 axios.defaults.timeout = 10000;
@@ -84,7 +83,8 @@ Vue.filter("genderFormat", function (gender) {
 });
 
 //城市名称过滤器
-Vue.filter("cityFormat", function (cityArr) {
+Vue.filter("cityFormat", function (cityString) {
+  var cityArr = cityString === undefined ? [] : cityString.split("-");
   //将所需要的城市编码信息列出来
   const location = cityArr;
   const locationProvince = location[0];
@@ -119,8 +119,13 @@ Vue.filter("cityFormat", function (cityArr) {
   return tansformLocation;
 });
 
+//公交车类型过滤器
+Vue.filter("busTypeFormat", function (type) {
+  return type === 3 ? "铰接式公交" : type === 2 ? "双层公交" : "单层公交";
+});
+
 new Vue({
   router,
   store,
-  render: h => h(App)
-}).$mount('#app')
+  render: (h) => h(App),
+}).$mount("#app");

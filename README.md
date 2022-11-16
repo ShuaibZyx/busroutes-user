@@ -1,4 +1,4 @@
-# busroutes
+# busroutes-user
 
 ## Project setup
 ```
