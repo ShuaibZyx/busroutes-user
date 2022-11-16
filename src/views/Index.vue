@@ -4,7 +4,7 @@
       <div class="key">
         <div class="input">
           <el-input
-            placeholder="请输入内容"
+            placeholder="请输入标志性地名"
             size="medium"
             v-model="searchKey"
             @keyup.enter.native="searchRoutes"
@@ -21,23 +21,36 @@
           </el-input>
         </div>
         <div class="section">
-          <el-form :model="sectionForm" :inline="true">
+          <el-form
+            :model="sectionForm"
+            :inline="true"
+            :rules="rules"
+            ref="form"
+          >
             <el-form-item>
               <el-input
                 v-model="sectionForm.start"
                 placeholder="起始地"
+                clearable
                 size="small"
               />
             </el-form-item>
-            <el-form-item>
+            <el-form-item prop="end">
               <el-input
                 v-model="sectionForm.end"
                 placeholder="目的地"
+                clearable
                 size="small"
               />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" size="mini">查询</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                :disabled="userInfo.cityCode === ''"
+                @click="searchSection"
+                >查询</el-button
+              >
             </el-form-item>
           </el-form>
         </div>
@@ -107,8 +120,17 @@
               >
             </template>
           </el-table-column>
+          <el-table-column label="操作" align="center">
+            <template slot-scope="scope">
+              <el-link
+                type="primary"
+                @click="$router.push('/busroute/' + scope.row.routeId)"
+                >查看详情</el-link
+              >
+            </template>
+          </el-table-column>
         </el-table>
-        <el-result v-else title="暂无查询结果🥶">
+        <el-result v-else title="暂无查询结果 快去搜索吧⭐">
           <template slot="icon">
             <el-image
               :src="require('../assets/images/bob.jpg')"
@@ -121,20 +143,62 @@
         <router-view />
       </div>
     </el-card>
+
+    <!-- 最新公告Dialog -->
+    <el-dialog
+      :visible.sync="needRead"
+      width="60%"
+      :close-on-click-modal="false"
+      custom-class="latestNotice"
+    >
+      <div slot="title" class="icon_title">
+        <i class="el-icon-news" />
+        <span> 网站最新公告</span>
+      </div>
+      <div class="notice">
+        <span class="title">{{ latestNotice.title }}</span>
+        <div class="ql-container ql-snow">
+          <div class="ql-editor" v-html="latestNotice.content" />
+        </div>
+      </div>
+      <div slot="footer">
+        <el-button type="primary" @click="userView" size="small"
+          >已 阅</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import "../assets/css/quill.snow.css";
 export default {
   name: "Index",
   data() {
     return {
+      //搜索结果列表
       searchRouteList: [],
+      //搜索关键字
       searchKey: "",
+      //区域搜索表单
       sectionForm: {
         start: "",
         end: "",
       },
+      //区域搜索验证规则
+      rules: {
+        end: [
+          {
+            required: true,
+            message: "目的地不可为空",
+            trigger: "blur",
+          },
+        ],
+      },
+      //网站最新公告dialog可见性(用户是否需要阅读)
+      needRead: false,
+      //网站最新公告信息
+      latestNotice: {},
     };
   },
   computed: {
@@ -144,7 +208,9 @@ export default {
     },
   },
   methods: {
+    //关键词搜索
     async searchRoutes() {
+      if (this.searchKey === "") return;
       const { data: searchRes } = await this.$axios.get(
         "route/search/" + this.searchKey,
         {
@@ -154,10 +220,59 @@ export default {
         }
       );
       this.searchRouteList = searchRes.data;
-      console.log(searchRes);
+      this.$message({
+        message: "查询成功",
+        type: "success",
+        center: true,
+        showClose: true,
+      });
+    },
+
+    //区域搜素
+    searchSection() {
+      this.$refs.form.validate(async (valid) => {
+        if (!valid) return;
+        const { data: searchSectionRes } = await this.$axios.get(
+          "route/search/section",
+          {
+            params: {
+              cityCode: this.userInfo?.cityCode,
+              start: this.sectionForm.start,
+              end: this.sectionForm.end,
+            },
+          }
+        );
+        this.searchRouteList = searchSectionRes.data;
+        this.$message({
+          message: "查询成功",
+          type: "success",
+          center: true,
+          showClose: true,
+        });
+      });
+    },
+
+    //获取网站最新公告
+    async getLatestNotice() {
+      const { data: latestNoticeRes } = await this.$axios.get(
+        "notice/info/new/" + this.userInfo.userId
+      );
+      this.latestNotice = latestNoticeRes.data.latestNotice;
+      this.needRead = !latestNoticeRes.data.state;
+    },
+
+    //用户阅读公告
+    async userView() {
+      await this.$axios.post("noticeReads/userView", {
+        noticeId: this.latestNotice.noticeId,
+        userId: this.userInfo.userId,
+      });
+      this.needRead = false;
     },
   },
-  mounted() {},
+  mounted() {
+    this.getLatestNotice();
+  },
 };
 </script>
 
@@ -208,6 +323,26 @@ export default {
     height: 70%;
     overflow-y: scroll;
     overflow-x: hidden;
+  }
+}
+
+.latestNotice {
+  border-radius: 10px !important;
+  .icon_title {
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  .notice {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .title {
+      margin-bottom: 10px;
+      font-family: 楷体;
+      font-size: 1.4em;
+      font-weight: bolder;
+    }
   }
 }
 </style>

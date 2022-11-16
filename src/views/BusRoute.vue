@@ -24,7 +24,7 @@
               style="width: 50px"
             />
             <span style="margin: 0 15px"
-              >{{ route.startNode?.currentStation.stationName }}-{{
+              >{{ route.startNode?.currentStation.stationName }}--->{{
                 route.endNode?.currentStation.stationName
               }}</span
             >
@@ -54,38 +54,84 @@
             v-for="(node, index) in routeNodeList"
             :key="node.routeNodeId"
           >
-            <!-- 站点框 -->
-            <div class="station">
-              <!-- 站点图标 -->
+            <!-- 人物框 -->
+            <div class="station" v-if="index + 1 === 1 && i === 0">
               <div class="icon">
-                <!-- 始发站点图标 -->
+                <!-- 男性图标 -->
                 <el-image
-                  v-if="node.sequence === route.startSequence"
-                  :src="require('../assets/icons/startstation.png')"
+                  v-if="userInfo.gender === 0"
+                  :src="require('../assets/icons/man.png')"
                   style="width: 45px"
                 />
-                <!-- 终点站点图标 -->
+                <!-- 女性图标 -->
                 <el-image
-                  v-else-if="node.sequence === route.endSequence"
-                  :src="require('../assets/icons/endstation.png')"
-                  style="width: 45px"
-                />
-                <!-- 普通站点图标 -->
-                <el-image
-                  v-else
-                  :src="require('../assets/icons/station.png')"
+                  v-if="userInfo.gender === 1"
+                  :src="require('../assets/icons/women.png')"
                   style="width: 45px"
                 />
               </div>
-              <!-- 站点名称 -->
-              <span class="stationName">{{
-                node.currentStation.stationName
-              }}</span>
+              <!-- 用户名 -->
+              <span class="stationName">
+                {{ userInfo.nickname }}
+              </span>
             </div>
-            <!-- 普通距离框 -->
+            <!-- 下一站提示 -->
+            <el-tooltip
+              effect="light"
+              :content="'下一站:' + node.nextStation.stationName"
+              placement="top"
+            >
+              <!-- 站点框 -->
+              <div class="station">
+                <!-- 站点图标 -->
+                <div class="icon">
+                  <!-- 始发站点图标 -->
+                  <el-image
+                    v-if="node.sequence === route.startSequence"
+                    :src="require('../assets/icons/startstation.png')"
+                    style="width: 45px"
+                  />
+                  <!-- 终点站点图标 -->
+                  <el-image
+                    v-else-if="node.sequence === route.endSequence"
+                    :src="require('../assets/icons/endstation.png')"
+                    style="width: 45px"
+                  />
+                  <!-- 普通站点图标 -->
+                  <el-image
+                    v-else
+                    :src="require('../assets/icons/station.png')"
+                    style="width: 45px"
+                  />
+                </div>
+                <!-- 站点名称 -->
+                <span class="stationName">{{
+                  node.currentStation.stationName
+                }}</span>
+              </div>
+            </el-tooltip>
+            <!-- 可用普通距离框 -->
             <div
               class="lineBox"
-              v-if="node.sequence !== route.endSequence && index + 1 < 8"
+              v-if="
+                node.sequence !== route.endSequence &&
+                index + 1 < 8 &&
+                node.currentStation?.state
+              "
+            >
+              <span class="distance">{{ node.distance }}米</span>
+              <div class="line">
+                <el-image :src="require('../assets/icons/blue-line-hor.png')" />
+              </div>
+            </div>
+            <!-- 不可用普通距离框 -->
+            <div
+              class="lineBox"
+              v-if="
+                node.sequence !== route.endSequence &&
+                index + 1 < 8 &&
+                !node.currentStation?.state
+              "
             >
               <span class="distance">{{ node.distance }}米</span>
               <div class="line">
@@ -94,13 +140,31 @@
                 />
               </div>
             </div>
-            <!-- 右末尾距离框 -->
+            <!-- 可用右末尾距离框 -->
             <div
               class="lineBox"
               v-if="
                 node.sequence !== route.endSequence &&
                 index + 1 === 8 &&
-                i % 2 === 0
+                i % 2 === 0 &&
+                node.currentStation?.state
+              "
+            >
+              <span class="distance">{{ node.distance }}米</span>
+              <div class="line">
+                <el-image
+                  :src="require('../assets/icons/blue-angle-right.png')"
+                />
+              </div>
+            </div>
+            <!-- 不可用右末尾距离框 -->
+            <div
+              class="lineBox"
+              v-if="
+                node.sequence !== route.endSequence &&
+                index + 1 === 8 &&
+                i % 2 === 0 &&
+                !node.currentStation?.state
               "
             >
               <span class="distance">{{ node.distance }}米</span>
@@ -110,13 +174,31 @@
                 />
               </div>
             </div>
-            <!-- 左末尾距离框 -->
+            <!-- 可用左末尾距离框 -->
             <div
               class="lineBox"
               v-if="
                 node.sequence !== route.endSequence &&
                 index + 1 === 8 &&
-                i % 2 !== 0
+                i % 2 !== 0 &&
+                node.currentStation?.state
+              "
+            >
+              <span class="distance">{{ node.distance }}米</span>
+              <div class="line">
+                <el-image
+                  :src="require('../assets/icons/blue-angle-left.png')"
+                />
+              </div>
+            </div>
+            <!-- 不可用左末尾距离框 -->
+            <div
+              class="lineBox"
+              v-if="
+                node.sequence !== route.endSequence &&
+                index + 1 === 8 &&
+                i % 2 !== 0 &&
+                !node.currentStation?.state
               "
             >
               <span class="distance">{{ node.distance }}米</span>
@@ -147,6 +229,9 @@ export default {
     routeId() {
       return this.$route.params.routeId;
     },
+    userInfo() {
+      return this.$store.state.userInfo;
+    },
   },
   methods: {
     async getRoute() {
@@ -172,7 +257,6 @@ export default {
       }
       routeRes.data.routeNodeList = des;
       this.route = routeRes.data;
-      console.log(this.route);
     },
   },
   mounted() {

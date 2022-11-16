@@ -8,6 +8,9 @@ const Home = () => import("../components/Home.vue");
 const Index = () => import("../views/Index.vue");
 const Profile = () => import("../views/Profile.vue");
 const BusRoute = () => import("../views/BusRoute.vue");
+const Issue = () => import("../views/Issue.vue");
+const Message = () => import("../views/Message.vue");
+const Notice = () => import("../views/Notice.vue");
 
 const originalPush = VueRouter.prototype.push;
 
@@ -37,6 +40,18 @@ const router = new VueRouter({
         {
           path: "/profile",
           component: Profile,
+        },
+        {
+          path: "/issue",
+          component: Issue,
+        },
+        {
+          path: "/message/:issueId",
+          component: Message,
+        },
+        {
+          path: "/notice",
+          component: Notice,
         },
       ],
     },
