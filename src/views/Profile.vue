@@ -199,7 +199,7 @@ export default {
     },
     //token
     token() {
-      return JSON.parse(window.sessionStorage.getItem("token"));
+      return JSON.parse(window.sessionStorage.getItem("user_token"));
     },
     //默认后端访问地址
     baseUrl() {

@@ -271,8 +271,8 @@ export default {
         if (loginRes.code === 200) {
           //将返回的token存入session以及cookie
           const token = loginRes.data.token;
-          if (this.autoLogin) this.$cookies.set("token", JSON.stringify(token), "7d");
-          window.sessionStorage.setItem("token", JSON.stringify(token));
+          if (this.autoLogin) this.$cookies.set("user_token", JSON.stringify(token), "7d");
+          window.sessionStorage.setItem("user_token", JSON.stringify(token));
           this.$router.push("/home");
         }
         this.$message({
@@ -340,9 +340,9 @@ export default {
     },
   },
   mounted() {
-    const token = JSON.parse(this.$cookies.get("token"));
+    const token = JSON.parse(this.$cookies.get("user_token"));
     if (token) {
-      window.sessionStorage.setItem("token", JSON.stringify(token));
+      window.sessionStorage.setItem("user_token", JSON.stringify(token));
       this.$router.push("/home");
     }
   },

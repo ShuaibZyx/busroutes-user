@@ -115,7 +115,7 @@ export default {
   methods: {
     //获取当前登录的用户信息
     async getUserInfoByToken() {
-      const token = JSON.parse(window.sessionStorage.getItem("token"));
+      const token = JSON.parse(window.sessionStorage.getItem("user_token"));
       const { data: userInfoRes } = await this.$axios.get(
         "user/info/token/" + token
       );

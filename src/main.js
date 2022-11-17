@@ -33,7 +33,7 @@ Vue.prototype.$lodash = lodash;
 // 在request拦截器中展示进度条,NProgress.start()
 axios.interceptors.request.use(
   (config) => {
-    const token = JSON.parse(window.sessionStorage.getItem("token"));
+    const token = JSON.parse(window.sessionStorage.getItem("user_token"));
     // 判断是否存在token，如果存在的话，则每个http header都加上token
     if (token) config.headers.token = token; //请求头加上token
     Nprogress.start();
@@ -57,11 +57,11 @@ axios.interceptors.response.use(
         center: true,
         type: "error",
       });
-      window.sessionStorage.removeItem("token");
+      window.sessionStorage.removeItem("user_token");
       router.push("login");
     }
     Nprogress.done();
-   /*  Vue.nextTick(() => {
+    /*  Vue.nextTick(() => {
       // 以服务的方式调用的 Loading 需要异步关闭
       ElementUI.Loading.service().close();
     }); */
