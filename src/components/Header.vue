@@ -11,7 +11,12 @@
       </el-tooltip>
       <span class="title">公交线路查询系统</span>
       <div class="operation">
-        <el-tooltip effect="light" content="主页" placement="top">
+        <el-tooltip
+          v-if="$route.path !== '/index'"
+          effect="light"
+          content="主页"
+          placement="top"
+        >
           <el-button
             circle
             icon="el-icon-house"
@@ -19,7 +24,7 @@
             @click="$router.push('/index')"
           />
         </el-tooltip>
-        <el-tooltip effect="light" content="客服" placement="top">
+        <el-tooltip v-if="$route.path !== '/issue'" effect="light" content="客服" placement="top">
           <el-button
             circle
             icon="el-icon-s-opportunity"
@@ -143,8 +148,8 @@ export default {
 
     //退出登录
     logout() {
-      window.sessionStorage.removeItem("token");
-      this.$cookies.remove("token");
+      window.sessionStorage.removeItem("user_token");
+      this.$cookies.remove("user_token");
       this.$router.push("/login");
       this.$message({
         message: "已退出登录",

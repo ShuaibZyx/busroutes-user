@@ -240,6 +240,7 @@ export default {
           this.userInfo
         );
         this.resetUserInfo();
+        this.$store.commit("setUserInfo", this.userInfo);
         this.$message({
           message: editUserRes.msg,
           type: `${editUserRes.code !== 200 ? "error" : "success"}`,

@@ -62,7 +62,7 @@
         <el-table
           :data="searchRouteList"
           fit
-          v-if="searchRouteList.length > 0"
+          v-if="searchRouteList?.length > 0"
           border
           stripe
           :highlight-current-row="true"
@@ -156,9 +156,9 @@
         <span> 网站最新公告</span>
       </div>
       <div class="notice">
-        <span class="title">{{ latestNotice.title }}</span>
+        <span class="title">{{ latestNotice?.title }}</span>
         <div class="ql-container ql-snow">
-          <div class="ql-editor" v-html="latestNotice.content" />
+          <div class="ql-editor" v-html="latestNotice?.content" />
         </div>
       </div>
       <div slot="footer">
@@ -219,6 +219,15 @@ export default {
           },
         }
       );
+      if (searchRes.data === null || searchRes.data?.length === 0) {
+        this.$message({
+          message: "暂无附近站点线路信息",
+          type: "warning",
+          center: true,
+          showClose: true,
+        });
+        return;
+      }
       this.searchRouteList = searchRes.data;
       this.$message({
         message: "查询成功",
@@ -242,6 +251,18 @@ export default {
             },
           }
         );
+        if (
+          searchSectionRes.data === null ||
+          searchSectionRes.data?.length === 0
+        ) {
+          this.$message({
+            message: "暂无附近站点线路信息",
+            type: "warning",
+            center: true,
+            showClose: true,
+          });
+          return;
+        }
         this.searchRouteList = searchSectionRes.data;
         this.$message({
           message: "查询成功",
@@ -257,8 +278,10 @@ export default {
       const { data: latestNoticeRes } = await this.$axios.get(
         "notice/info/new/" + this.userInfo.userId
       );
-      this.latestNotice = latestNoticeRes.data.latestNotice;
-      this.needRead = !latestNoticeRes.data.state;
+      if (latestNoticeRes.data) {
+        this.latestNotice = latestNoticeRes.data?.latestNotice;
+        this.needRead = !latestNoticeRes.data?.state;
+      }
     },
 
     //用户阅读公告

@@ -3,7 +3,7 @@
     <div class="login_bg" />
     <!--github小猫咪-->
     <a
-      href="https://github.com/ShuaibZyx/gvmi"
+      href="https://github.com/ShuaibZyx/busroutes-user"
       class="github-corner"
       target="_blank"
       title="Follow me on GitHub"
@@ -300,11 +300,11 @@ export default {
         if (registRes.code === 200) {
           //注册成功后为用户填入登陆表单数据
           this.loginForm = this.registerForm;
-          this.signName = "Regist";
+          this.signName = "Login";
           this.loginByPassword();
         }
         this.$message({
-          message: registRes.code === 200 ? "注册成功 请登录" : registRes.msg,
+          message: registRes.code === 200 ? "注册成功" : registRes.msg,
           type: registRes.code === 200 ? "success" : "error",
           center: true,
           showClose: true,
@@ -333,7 +333,7 @@ export default {
     //注册时校验账号是否已经注册
     async userAccountIsExist(rule, value, callback) {
       const { data: existRes } = await this.$axios.get(
-        "user/exist/" + this.registerForm.account
+        "user/register/exist/" + this.registerForm.account
       );
       if (existRes.data) callback(new Error("该账号已被注册"));
       else return true;

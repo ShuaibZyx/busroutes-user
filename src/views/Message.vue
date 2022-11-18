@@ -184,7 +184,8 @@ export default {
           receiver: this.issueInfo.adminId,
           message: this.message.content,
         };
-        if (this.webSocket !== null) this.webSocket.send(JSON.stringify(messageObj));
+        if (this.webSocket !== null)
+          this.webSocket.send(JSON.stringify(messageObj));
         else this.openWebSocket();
       }
       this.$message({
@@ -242,6 +243,9 @@ export default {
         };
       }
     },
+  },
+  beforeDestroy() {
+    if (this.webSocket !== null) this.webSocket.close();
   },
   mounted() {
     this.getIssueInfoById();
