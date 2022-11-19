@@ -75,9 +75,11 @@ export default {
       const { data: noticeListRes } = await this.$axios.get(
         "notice/list/published/" + this.userInfo.userId
       );
-      this.noticeList = noticeListRes.data;
-      for (let i = 0; i < noticeListRes.data.length; i++) {
-        if (!noticeListRes.data[i].state) this.viewAllBtn = false;
+      if (noticeListRes.code === 200) {
+        this.noticeList = noticeListRes.data;
+        for (let i = 0; i < noticeListRes.data?.length; i++) {
+          if (!noticeListRes.data[i].state) this.viewAllBtn = false;
+        }
       }
     },
 

@@ -78,7 +78,11 @@
             <!-- 下一站提示 -->
             <el-tooltip
               effect="light"
-              :content="'下一站:' + node.nextStation.stationName"
+              :content="
+                node.nextStation
+                  ? '下一站:' + node.nextStation?.stationName
+                  : '本站为终点站'
+              "
               placement="top"
             >
               <!-- 站点框 -->
